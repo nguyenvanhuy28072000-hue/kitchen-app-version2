@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <!--=========================================
+        基本設定
+    ==========================================-->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>キッチン コース管理</title>
+
+    <style>
+
+    /*=========================================
+        全体
+    ==========================================*/
+
+    body{
+
+        margin:5px;
+
+        font-family:sans-serif;
+
+        overflow-x:auto;
+
+        background:#ffffff;
+
+    }
+
+    h3{
+
+        margin-top:30px;
+
+        margin-bottom:10px;
+
+    }
+
+    h4{
+
+        text-align:center;
+
+    }
+
+    /*=========================================
+        入力エリア
+    ==========================================*/
+
+    .controls{
+
+        margin-bottom:8px;
+
+    }
+
+    select,
+    button{
+
+        padding:6px;
+
+        font-size:16px;
+
+        margin-right:3px;
+
+    }
+
+    input{
+
+        width:73px;
+
+        height:25px;
+
+        font-size:17px;
+
+        text-align:center;
+
+    }
+
+    button{
+
+        cursor:pointer;
+
+    }
+
+    /*=========================================
+        テーブル
+    ==========================================*/
+
+    table{
+
+        width:100%;
+
+        border-collapse:collapse;
+
+        background:#f4f0f0;
+
+    }
+
+    th,
+    td{
+
+        border:1px solid #cccccc;
+
+        padding:2px;
+
+        text-align:center;
+
+    }
+
+    th{
+
+        background:#333333;
+
+        color:white;
+
+    }
+
+    /*=========================================
+        料理セル
+    ==========================================*/
+
+    .dish{
+
+        width:8%;
+
+        cursor:pointer;
+
+        font-weight:bold;
+
+        user-select:none;
+
+    }
+
+    /* 提供済 */
+
+    .done{
+
+        background:#666666 !important;
+
+        color:#bbbbbb !important;
+
+        text-decoration:line-through;
+
+        opacity:0.6;
+
+    }
+
+    /*=========================================
+        ボタン色
+    ==========================================*/
+
+    button:first-child{
+
+        color:blue;
+
+        padding:5px;
+
+    }
+
+    button:last-child{
+
+        color:red;
+
+        padding:5px;
+
+    }
+
+    /*=========================================
+        コース料理色
+    ==========================================*/
+
+    /*①*/
+
+    .dish0{
+
+        background:#ffd6d6;
+
+    }
+
+    /*②*/
+
+    .dish1{
+
+        background:#fff0b3;
+
+    }
+
+    /*③*/
+
+    .dish2{
+
+        background:#d6f5d6;
+
+    }
+
+    /*④*/
+
+    .dish3{
+
+        background:#d6ecff;
+
+    }
+
+    /*⑤*/
+
+    .dish4{
+
+        background:#e6d6ff;
+
+    }
+
+    /*⑥*/
+
+    .dish5{
+
+        background:#ffd9f0;
+
+    }
+
+    /*⑦*/
+
+    .dish6{
+
+        background:#ffe4cc;
+
+    }
+
+    /*⑧*/
+
+    .dish7{
+
+        background:#d9fff2;
+
+    }
+
+    /*⑨*/
+
+    .dish8{
+
+        background:#f0f0f4;
+
+    }
+    <body>
+
+<!-- ===============================
+     入力エリア
+=============================== -->
+
+<div class="controls">
+
+    <!-- コース開始時間 -->
+    <input
+        type="time"
+        id="courseTime">
+
+    <!-- コース選択 -->
+    <select id="courseSelect">
+        <!-- JavaScriptで自動追加 -->
+    </select>
+
+    <!-- 人数 -->
+    <input
+        type="number"
+        id="people"
+        placeholder="人数"
+        min="1"
+        style="width:60px;">
+
+    <!-- 卓番号 -->
+    <input
+        type="text"
+        id="tableNo"
+        placeholder="卓番">
+
+    <!-- 注文追加 -->
+    <button onclick="addCourse()">
+        追加
+    </button>
+
+</div>
+
+
+<!-- ===============================
+     注文一覧
+=============================== -->
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <!-- 追加料理 -->
+            <th>追加</th>
+
+            <!-- 注文削除 -->
+            <th>削除</th>
+
+            <!-- 開始時間 -->
+            <th>時間</th>
+
+            <!-- コース -->
+            <th>コース</th>
+
+            <!-- 人数 -->
+            <th>人数</th>
+
+            <!-- 卓番号 -->
+            <th>卓番</th>
+
+            <!-- ラストオーダー -->
+            <th>L.O.</th>
+
+            <!-- コース料理 -->
+            <th>料理①</th>
+            <th>料理②</th>
+            <th>料理③</th>
+            <th>料理④</th>
+            <th>料理⑤</th>
+            <th>料理⑥</th>
+            <th>料理⑦</th>
+            <th>料理⑧</th>
+            <th>料理⑨</th>
+
+            <!-- 追加料理 -->
+            <th>追加料理</th>
+
+        </tr>
+
+    </thead>
+
+    <!-- JavaScriptがここへ注文を表示 -->
+    <tbody id="courseBody"></tbody>
+
+</table>
+
+
+<!-- ===============================
+     完了済み一覧
+=============================== -->
+
+<h3>完了コース</h3>
+
+<div style="overflow-x:auto;">
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>時間</th>
+
+            <th>コース</th>
+
+            <th>人数</th>
+
+            <th>卓番</th>
+
+            <th>完了時間</th>
+
+            <th>操作</th>
+
+        </tr>
+
+    </thead>
+
+    <!-- JavaScriptがここへ表示 -->
+    <tbody id="completedBody"></tbody>
+
+</table>
+
+</div>
+
+
+<!-- ===============================
+     ログアウト
+=============================== -->
+
+<div style="text-align:center;margin:30px 0;">
+
+    <button
+        onclick="logout()"
+        style="
+            padding:12px 30px;
+            font-size:18px;
+            background:#d9534f;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        ">
+
+        ログアウト
+
+    </button>
+
+</div>
+
+
+<hr>
+
+
+<!-- ===============================
+     管理画面へ
+=============================== -->
+
+<button onclick="location.href='admin.html'">
+
+    コース管理
+
+</button>
+<!-- =========================================
+ Firebaseライブラリ
+ ========================================== -->
+
+<!-- Firebase本体 -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<!-- Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Authentication -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+
+<!-- =========================================
+ 自分のJavaScript
+ ========================================== -->
+
+<!-- Firebase設定 -->
+<script src="firebase.js"></script>
+
+<!-- メイン処理 -->
+<script src="script.js?v=2"></script>
+
+
+<!-- =========================================
+ ログアウトボタン
+ ========================================== -->
+
+<div style="text-align:center;margin:30px 0;">
+
+    <button
+        onclick="logout()"
+        style="
+            padding:12px 30px;
+            font-size:18px;
+            background:#d9534f;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        ">
+
+        ログアウト
+
+    </button>
+
+</div>
+
+
+<hr>
+
+
+<!-- =========================================
+ 管理画面へ移動
+ ========================================== -->
+
+<div style="text-align:center;">
+
+    <button onclick="location.href='admin.html'">
+
+        コース管理
+
+    </button>
+
+</div>
+
+
+</body>
+</html>
+<!-- =======================================
+ Firebaseライブラリ
+======================================= -->
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<!-- Firebase設定 -->
+<script src="firebase.js"></script>
+
+<!-- メインJavaScript -->
+<script src="script.js?v=2"></script>
+
+
+<!-- =======================================
+ ログアウトボタン
+======================================= -->
+
+<div style="text-align:center;margin:30px 0;">
+
+    <button
+        onclick="logout()"
+        style="
+            padding:12px 30px;
+            font-size:18px;
+            background:#d9534f;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        ">
+
+        ログアウト
+
+    </button>
+
+</div>
+
+
+<hr>
+
+
+<!-- =======================================
+ コース管理画面へ
+======================================= -->
+
+<button onclick="location.href='admin.html'">
+
+    コース管理
+
+</button>
+
+</body>
+</html>
