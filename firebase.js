@@ -4,19 +4,13 @@
 
 // Firebaseプロジェクトの情報
 const firebaseConfig = {
-
-    apiKey: "AIzaSyBzlvVUxZrMaU8OxYve9GNts1ZdCz35CWk",
-
-    authDomain: "kitchen-app-31fa9.firebaseapp.com",
-
-    projectId: "kitchen-app-31fa9",
-
-    storageBucket: "kitchen-app-31fa9.firebasestorage.app",
-
-    messagingSenderId: "18408555856",
-
-    appId: "1:18408555856:web:b4a4337326d408f5f5d855"
-
+  apiKey: "AIzaSyAMG0d77v5sxeeJNNlP8QZ-wVys8FUTCSY",
+  authDomain: "kitchen-app-version2.firebaseapp.com",
+  projectId: "kitchen-app-version2",
+  storageBucket: "kitchen-app-version2.firebasestorage.app",
+  messagingSenderId: "486197993663",
+  appId: "1:486197993663:web:b15a0d343ed6e7916ce60a",
+  measurementId: "G-EYVT3M0S9J"
 };
 
 
