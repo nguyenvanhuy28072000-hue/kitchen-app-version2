@@ -1,5 +1,7 @@
 //==================================================
-// グローバル変数
+// script.js
+// Part 1 / 8
+// グローバル変数・初期処理
 //==================================================
 
 // 最新の注文一覧（30秒ごとの再描画に使用）
@@ -13,57 +15,48 @@ let courseDuration = {};
 
 
 //==================================================
-// コース一覧をFirestoreから取得
+// コース一覧取得
+// Firestoreから courses コレクションを読む
 //==================================================
-function loadCourses() {
+function loadCourses(){
 
-    return window.db
-        .collection("courses")
-        .orderBy("order")        // 管理画面で並べた順
-        .get()
+    return window.db.collection("courses")
+    .orderBy("order")
+    .get()
 
-        .then(snapshot => {
+    .then(snapshot=>{
 
-            // 一度初期化
-            courseData = {};
-            courseDuration = {};
+        courseData = {};
+        courseDuration = {};
 
-            const select =
-                document.getElementById("courseSelect");
+        const select =
+        document.getElementById("courseSelect");
 
-            // セレクトボックス初期化
-            select.innerHTML =
-                '<option value="">コース選択</option>';
+        select.innerHTML =
+        '<option value="">コース選択</option>';
 
-            snapshot.forEach(doc => {
+        snapshot.forEach(doc=>{
 
-                const data = doc.data();
+            const data = doc.data();
 
-                //--------------------------------------------------
-                // Firestore → JavaScriptへ保存
-                //--------------------------------------------------
+            //料理一覧保存
+            courseData[doc.id] =
+            data.dishes || [];
 
-                // 料理一覧
-                courseData[doc.id] =
-                    data.dishes || [];
+            //コース時間保存
+            courseDuration[doc.id] =
+            data.duration || 90;
 
-                // コース時間
-                courseDuration[doc.id] =
-                    data.duration || 90;
-
-                //--------------------------------------------------
-                // セレクトへ追加
-                //--------------------------------------------------
-
-                select.innerHTML += `
-                    <option value="${doc.id}">
-                        ${doc.id}
-                    </option>
-                `;
-
-            });
+            //セレクトへ追加
+            select.innerHTML += `
+            <option value="${doc.id}">
+                ${doc.id}
+            </option>
+            `;
 
         });
+
+    });
 
 }
 
@@ -71,29 +64,24 @@ function loadCourses() {
 //==================================================
 // 注文追加
 //==================================================
-function addCourse() {
-
-    //--------------------------------------------------
-    // 入力値取得
-    //--------------------------------------------------
+function addCourse(){
 
     const time =
-        document.getElementById("courseTime").value;
+    document.getElementById("courseTime").value;
 
     const course =
-        document.getElementById("courseSelect").value;
+    document.getElementById("courseSelect").value;
 
     const people =
-        document.getElementById("people").value;
+    document.getElementById("people").value;
 
     const table =
-        document.getElementById("tableNo").value;
+    document.getElementById("tableNo").value;
 
-    //--------------------------------------------------
+    //-----------------------------
     // 入力チェック
-    //--------------------------------------------------
-
-    if (!time || !course || !people || !table) {
+    //-----------------------------
+    if(!time || !course || !people || !table){
 
         alert("未入力があります");
 
@@ -101,54 +89,48 @@ function addCourse() {
 
     }
 
-    //--------------------------------------------------
+    //-----------------------------
     // コース料理作成
-    //--------------------------------------------------
-
+    //-----------------------------
     const dishes =
-        (courseData[course] || []).map(name => ({
+    (courseData[course] || []).map(name=>({
 
-            name: name,
+        name:name,
 
-            done: false
+        done:false
 
-        }));
+    }));
 
-    //--------------------------------------------------
+    //-----------------------------
     // Firestoreへ保存
-    //--------------------------------------------------
+    //-----------------------------
+    window.db.collection("orders")
+    .add({
 
-    window.db.collection("orders").add({
+        time:time,
 
-        time: time,
+        course:course,
 
-        course: course,
+        people:Number(people),
 
-        people: Number(people),
+        table:table,
 
-        table: table,
+        dishes:dishes,
 
-        dishes: dishes,
+        extraDishes:[],
 
-        extraDishes: [],
-
-        createdAt: Date.now()
-
-    })
-
-    .then(() => {
-
-        //--------------------------------------------------
-        // 入力欄クリア
-        //--------------------------------------------------
-
-        document.getElementById("people").value = "";
-
-        document.getElementById("tableNo").value = "";
+        createdAt:Date.now()
 
     })
 
-    .catch(error => {
+    .then(()=>{
+
+        document.getElementById("people").value="";
+        document.getElementById("tableNo").value="";
+
+    })
+
+    .catch(error=>{
 
         alert(error.message);
 
@@ -160,20 +142,18 @@ function addCourse() {
 //==================================================
 // 注文情報更新
 //==================================================
-function updateField(orderId, field, value) {
+function updateField(orderId,field,value){
 
-    const updateData = {};
+    const updateData={};
 
-    // 人数だけ数字へ変換
     updateData[field] =
-        field === "people"
-        ? Number(value)
-        : value;
+    field==="people"
+    ? Number(value)
+    : value;
 
-    window.db
-        .collection("orders")
-        .doc(orderId)
-        .update(updateData);
+    window.db.collection("orders")
+    .doc(orderId)
+    .update(updateData);
 
 }
 
@@ -181,17 +161,17 @@ function updateField(orderId, field, value) {
 //==================================================
 // ログアウト
 //==================================================
-function logout() {
+function logout(){
 
     firebase.auth()
 
-        .signOut()
+    .signOut()
 
-        .then(() => {
+    .then(()=>{
 
-            location.href = "login.html";
+        location.href="login.html";
 
-        });
+    });
 
 }
 
@@ -199,250 +179,209 @@ function logout() {
 //==================================================
 // ログイン確認
 //==================================================
-firebase.auth().onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(user=>{
 
-    //--------------------------------------------------
-    // 未ログインならログイン画面へ
-    //--------------------------------------------------
+    //-----------------------------
+    // 未ログイン
+    //-----------------------------
+    if(!user){
 
-    if (!user) {
-
-        location.href = "login.html";
+        location.href="login.html";
 
         return;
 
     }
 
-    //--------------------------------------------------
-    // コース一覧取得
-    //--------------------------------------------------
-
+    //-----------------------------
+    // コース読込
+    //-----------------------------
     loadCourses()
 
-    .then(() => {
+    .then(()=>{
 
-        //--------------------------------------------------
-        // 注文一覧
-        //--------------------------------------------------
+        //-------------------------
+        // 注文一覧監視
+        //-------------------------
+        window.db.collection("orders")
 
-        window.db
+        .onSnapshot(snapshot=>{
 
-            .collection("orders")
+            latestSnapshot = snapshot;
 
-            .onSnapshot(snapshot => {
+            renderOrders(snapshot);
 
-                latestSnapshot = snapshot;
+        });
 
-                renderOrders(snapshot);
+        //-------------------------
+        // 完了一覧監視
+        //-------------------------
+        window.db.collection("completedOrders")
 
-            });
+        .onSnapshot(snapshot=>{
 
-        //--------------------------------------------------
-        // 完了済一覧
-        //--------------------------------------------------
+            renderCompleted(snapshot);
 
-        window.db
-
-            .collection("completedOrders")
-
-            .onSnapshot(snapshot => {
-
-                renderCompleted(snapshot);
-
-            });
+        });
 
     });
 
 });
-
-
-//==================================================
-// windowへ公開
-// HTMLから呼び出す関数
-//==================================================
-
-window.logout = logout;
-
-window.addCourse = addCourse;
-
-window.updateField = updateField;
-
 //==================================================
 // 注文一覧表示
-//
-// Firestoreから取得した注文データを
-// テーブルへ表示する。
 //==================================================
-function renderOrders(snapshot) {
+function renderOrders(snapshot){
 
-    //--------------------------------------------------
-    // テーブル本体
-    //--------------------------------------------------
     const body =
-        document.getElementById("courseBody");
+    document.getElementById("courseBody");
 
-    // 一度中身を空にする
     body.innerHTML = "";
 
-    //--------------------------------------------------
-    // 「進行中」と「開始前」を分けて表示するため
-    //--------------------------------------------------
     let startedHtml = "";
     let waitingHtml = "";
 
-    //--------------------------------------------------
-    // 時間順 → 登録順
-    //--------------------------------------------------
-    const orders = snapshot.docs.sort((a, b) => {
+    //-----------------------------
+    // 時間順→登録順
+    //-----------------------------
+    const orders = snapshot.docs.sort((a,b)=>{
 
         const aData = a.data();
         const bData = b.data();
 
-        // 開始時間
         const timeCompare =
-            aData.time.localeCompare(bData.time);
+        aData.time.localeCompare(bData.time);
 
-        if (timeCompare !== 0) {
+        if(timeCompare !== 0){
             return timeCompare;
         }
 
-        // 同じ時間なら登録順
         return (
-            (aData.createdAt || 0) -
+            (aData.createdAt || 0)
+            -
             (bData.createdAt || 0)
         );
 
     });
 
-    //--------------------------------------------------
-    // 注文を1件ずつ表示
-    //--------------------------------------------------
-    orders.forEach(doc => {
+    //-----------------------------
+    // 1件ずつ表示
+    //-----------------------------
+    orders.forEach(doc=>{
 
         const order = doc.data();
         const id = doc.id;
 
-        //--------------------------------------------------
-        // コース変更用<select>
-        //--------------------------------------------------
+        //-------------------------
+        // コース選択
+        //-------------------------
         let courseOptions = "";
 
-        Object.keys(courseData).forEach(course => {
+        Object.keys(courseData).forEach(course=>{
 
             courseOptions += `
-                <option
-                    value="${course}"
-                    ${order.course === course ? "selected" : ""}
-                >
-                    ${course}
-                </option>
+            <option
+                value="${course}"
+                ${order.course===course?"selected":""}
+            >
+                ${course}
+            </option>
             `;
 
         });
 
-        //--------------------------------------------------
+        //-------------------------
         // 開始時間
-        //--------------------------------------------------
-        const [hour, minute] =
-            order.time.split(":");
+        //-------------------------
+        const [hour,minute] =
+        order.time.split(":");
 
-        //--------------------------------------------------
-        // 開始時刻(Date)
-        //--------------------------------------------------
-        const startTime = new Date();
+        const startTime =
+        new Date();
 
         startTime.setHours(Number(hour));
         startTime.setMinutes(Number(minute));
         startTime.setSeconds(0);
 
-        //--------------------------------------------------
+        //-------------------------
         // コース時間
-        //--------------------------------------------------
+        //-------------------------
         const duration =
-            courseDuration[order.course] || 90;
+        courseDuration[order.course] || 90;
 
-        //--------------------------------------------------
-        // ラストオーダー時間
-        //--------------------------------------------------
-        const loTime = new Date(startTime);
+        //-------------------------
+        // ラストオーダー
+        //-------------------------
+        const loTime =
+        new Date(startTime);
 
         loTime.setMinutes(
-            loTime.getMinutes() + duration
+            loTime.getMinutes()+duration
         );
 
-        //--------------------------------------------------
-        // L.O表示文字
-        //--------------------------------------------------
         let loText =
-            loTime.getHours()
-                .toString()
-                .padStart(2, "0")
-            +
-            ":"
-            +
-            loTime.getMinutes()
-                .toString()
-                .padStart(2, "0");
+        loTime.getHours()
+        .toString()
+        .padStart(2,"0")
+        +
+        ":"
+        +
+        loTime.getMinutes()
+        .toString()
+        .padStart(2,"0");
 
-        //--------------------------------------------------
+        //-------------------------
         // 現在時刻
-        //--------------------------------------------------
-        const now = new Date();
+        //-------------------------
+        const now =
+        new Date();
 
-        //--------------------------------------------------
-        // L.Oまで残り何分か
-        //--------------------------------------------------
         const remainMinutes =
-            Math.floor(
-                (loTime.getTime() -
-                    now.getTime())
-                / 60000
-            );
+        Math.floor(
+            (
+                loTime.getTime()
+                -
+                now.getTime()
+            )/60000
+        );
 
-        //--------------------------------------------------
-        // 分へ変換
-        //--------------------------------------------------
         const startMinutes =
-            Number(hour) * 60 +
-            Number(minute);
+        Number(hour)*60+
+        Number(minute);
 
         const nowMinutes =
-            now.getHours() * 60 +
-            now.getMinutes();
+        now.getHours()*60+
+        now.getMinutes();
 
-        //--------------------------------------------------
+        //-------------------------
         // 進捗率
-        //--------------------------------------------------
+        //-------------------------
         let progress =
-            (
-                (nowMinutes - startMinutes)
-                /
-                duration
-            ) * 100;
+        (
+            (nowMinutes-startMinutes)
+            /
+            duration
+        )*100;
 
         progress =
-            Math.max(
-                0,
-                Math.min(progress, 100)
-            );
+        Math.max(
+            0,
+            Math.min(progress,100)
+        );
 
-        //--------------------------------------------------
-        // 料理セル数
-        //--------------------------------------------------
+        //-------------------------
+        // セル数
+        //-------------------------
         const totalCols =
+        order.dishes.length +
+        (
+            order.extraDishes
+            ? order.extraDishes.length
+            : 0
+        );
 
-            order.dishes.length +
-
-            (
-                order.extraDishes
-                    ? order.extraDishes.length
-                    : 0
-            );
-
-        //--------------------------------------------------
-        // コース色
-        //--------------------------------------------------
-        const colors = [
+        //-------------------------
+        // 行カラー
+        //-------------------------
+        const colors=[
 
             "#eeeeee",
             "#d6ecff",
@@ -458,210 +397,171 @@ function renderOrders(snapshot) {
         ];
 
         const courseNames =
-            Object.keys(courseData);
+        Object.keys(courseData);
 
         const colorIndex =
-            courseNames.indexOf(order.course)
-            %
-            colors.length;
+        courseNames.indexOf(order.course)
+        %
+        colors.length;
 
         const rowColor =
-            colors[colorIndex];
+        colors[colorIndex];
 
-        //--------------------------------------------------
+        //-------------------------
         // L.O色
-        //--------------------------------------------------
+        //-------------------------
         let loClass = "";
         let progressClass = "";
 
-        if (remainMinutes < 0) {
+        if(remainMinutes<0){
 
-            loClass = "loRed";
-            progressClass = "progressRed";
+            loClass="loRed";
+            progressClass="progressRed";
+            loText="L.O.過ぎ";
 
-            loText = "L.O.過ぎ";
+        }
+        else if(remainMinutes<=10){
+
+            loClass="loRed";
+            progressClass="progressRed";
+
+        }
+        else if(remainMinutes<=30){
+
+            loClass="loYellow";
+            progressClass="progressYellow";
 
         }
 
-        else if (remainMinutes <= 10) {
-
-            loClass = "loRed";
-            progressClass = "progressRed";
-
-        }
-
-        else if (remainMinutes <= 30) {
-
-            loClass = "loYellow";
-            progressClass = "progressYellow";
-
-        }
-
-        //--------------------------------------------------
-        // ↓↓↓ここからHTML作成開始
-        //--------------------------------------------------
-
-        //--------------------------------------------------
-        // 1行目（注文情報）
-        //--------------------------------------------------
-
+        //-------------------------
+        // HTML開始
+        //-------------------------
         let html = `
+        <tr style="background:${rowColor}">
 
-            <tr style="background:${rowColor}">
+            <td>
+                <button onclick="addExtraDish('${id}')">
+                    ＋料理
+                </button>
+            </td>
 
-                <!-- 追加料理 -->
-                <td>
+            <td>
+                <button onclick="deleteOrder('${id}')">
+                    削除
+                </button>
+            </td>
 
-                    <button
-                        onclick="addExtraDish('${id}')">
+            <td>
+                <input
+                    type="time"
+                    value="${order.time}"
+                    onchange="updateField('${id}','time',this.value)">
+            </td>
 
-                        ＋料理
+            <td>
+                <select onchange="updateCourse('${id}',this.value)">
+                    ${courseOptions}
+                </select>
+            </td>
 
-                    </button>
+            <td>
+                <input
+                    type="number"
+                    style="width:55px;"
+                    value="${order.people}"
+                    onchange="updateField('${id}','people',this.value)">
+                名
+            </td>
 
-                </td>
+            <td>
+                <input
+                    type="text"
+                    value="${order.table}"
+                    onchange="updateField('${id}','table',this.value)">
+            </td>
 
-                <!-- 削除 -->
-                <td>
-
-                    <button
-                        onclick="deleteOrder('${id}')">
-
-                        削除
-
-                    </button>
-
-                </td>
-
-                <!-- 開始時間 -->
-                <td>
-
-                    <input
-                        type="time"
-
-                        value="${order.time}"
-
-                        onchange="
-                            updateField(
-                                '${id}',
-                                'time',
-                                this.value
-                            )
-                        ">
-
-                </td>
-
-                <!-- コース変更 -->
-                <td>
-
-                    <select
-                        onchange="
-                            updateCourse(
-                                '${id}',
-                                this.value
-                            )
-                        ">
-
-                        ${courseOptions}
-
-                    </select>
-
-                </td>
-
-                <!-- 人数 -->
-                <td>
-
-                    <input
-
-                        type="number"
-
-                        value="${order.people}"
-
-                        style="width:55px;"
-
-                        onchange="
-                            updateField(
-                                '${id}',
-                                'people',
-                                this.value
-                            )
-                        ">
-
-                    名
-
-                </td>
-
-                <!-- 卓番号 -->
-                <td>
-
-                    <input
-
-                        type="text"
-
-                        value="${order.table}"
-
-                        onchange="
-                            updateField(
-                                '${id}',
-                                'table',
-                                this.value
-                            )
-                        ">
-
-                </td>
-
-                <!-- L.O -->
-                <td
-
-                    id="lo-${id}"
-
-                    class="${loClass}"
-
-                >
-
-                    ${loText}
-
-                </td>
+            <td
+                id="lo-${id}"
+                class="${loClass}">
+                ${loText}
+            </td>
         `;
-
-        //--------------------------------------------------
+        //-------------------------
         // コース料理表示
-        //--------------------------------------------------
-
-        order.dishes.forEach((dish, index) => {
+        //-------------------------
+        order.dishes.forEach((dish,index)=>{
 
             html += `
+            <td
+                class="dish dish${index} ${dish.done ? "done" : ""}"
 
+                draggable="true"
+
+                ondragstart="
+                    dragDish(
+                        '${id}',
+                        ${index}
+                    )
+                "
+
+                ondragover="event.preventDefault()"
+
+                ondrop="
+                    dropDish(
+                        '${id}',
+                        ${index}
+                    )
+                "
+
+                onclick="
+                    toggleDish(
+                        '${id}',
+                        ${index}
+                    )
+                "
+            >
+                ${dish.name}
+            </td>
+            `;
+
+        });
+
+        //-------------------------
+        // 追加料理表示
+        //-------------------------
+        if(order.extraDishes){
+
+            order.extraDishes.forEach((dish,index)=>{
+
+                html += `
                 <td
 
                     class="
                         dish
-                        dish${index}
+                        extraDish
                         ${dish.done ? "done" : ""}
                     "
 
                     draggable="true"
 
                     ondragstart="
-                        dragDish(
+                        dragExtraDish(
                             '${id}',
                             ${index}
                         )
                     "
 
-                    ondragover="
-                        event.preventDefault()
-                    "
+                    ondragover="event.preventDefault()"
 
                     ondrop="
-                        dropDish(
+                        dropExtraDish(
                             '${id}',
                             ${index}
                         )
                     "
 
                     onclick="
-                        toggleDish(
+                        toggleExtraDish(
                             '${id}',
                             ${index}
                         )
@@ -669,124 +569,59 @@ function renderOrders(snapshot) {
 
                 >
 
-                    ${dish.name}
+                    ★${dish.name}
 
                 </td>
-
-            `;
-
-        });
-
-        //--------------------------------------------------
-        // 追加料理表示
-        //--------------------------------------------------
-
-        if (order.extraDishes) {
-
-            order.extraDishes.forEach((dish, index) => {
-
-                html += `
-
-                    <td
-
-                        class="
-                            dish
-                            extraDish
-                            ${dish.done ? "done" : ""}
-                        "
-
-                        draggable="true"
-
-                        ondragstart="
-                            dragExtraDish(
-                                '${id}',
-                                ${index}
-                            )
-                        "
-
-                        ondragover="
-                            event.preventDefault()
-                        "
-
-                        ondrop="
-                            dropExtraDish(
-                                '${id}',
-                                ${index}
-                            )
-                        "
-
-                        onclick="
-                            toggleExtraDish(
-                                '${id}',
-                                ${index}
-                            )
-                        "
-
-                    >
-
-                        ★${dish.name}
-
-                    </td>
-
                 `;
 
             });
 
         }
-    
-        //--------------------------------------------------
-        // 2行目（進捗バー）
-        //--------------------------------------------------
 
+        //-------------------------
+        // 進捗バー
+        //-------------------------
         html += `
 
-            </tr>
+        </tr>
 
-            <tr style="background:${rowColor}">
+        <tr style="background:${rowColor}">
 
-                <!-- 左側は空白 -->
-                <td colspan="7"></td>
+            <td colspan="7"></td>
 
-                <!-- 進捗バー -->
-                <td colspan="${totalCols}">
+            <td colspan="${totalCols}">
 
-                    <div class="progressWrap">
+                <div class="progressWrap">
 
-                        <div
+                    <div
 
-                            id="progress-${id}"
+                        id="progress-${id}"
 
-                            class="progressBar ${progressClass}"
+                        class="progressBar ${progressClass}"
 
-                            style="width:${progress}%"
+                        style="width:${progress}%"
 
-                        ></div>
+                    ></div>
 
-                    </div>
+                </div>
 
-                </td>
+            </td>
 
-            </tr>
+        </tr>
 
         `;
 
-        //--------------------------------------------------
-        // 開始済みか判定
-        //--------------------------------------------------
-
+        //-------------------------
+        // 開始済み判定
+        //-------------------------
         const started =
+        nowMinutes >= startMinutes;
 
-            nowMinutes >= startMinutes;
-
-        //--------------------------------------------------
-        // 表示場所を分ける
-        //--------------------------------------------------
-
-        if (started) {
+        if(started){
 
             startedHtml += html;
 
-        } else {
+        }else{
 
             waitingHtml += html;
 
@@ -794,23 +629,22 @@ function renderOrders(snapshot) {
 
     });
 
-    //--------------------------------------------------
-    // 最後に画面へ表示
-    //--------------------------------------------------
+    //-------------------------
+    // 画面へ表示
+    //-------------------------
+    body.innerHTML =
 
-    body.innerHTML = `
+    `
 
-        <tr>
+    <tr>
 
-            <td
-                colspan="20"
-                class="sectionTitle">
+        <td colspan="20" class="sectionTitle">
 
-                進行中コース
+            進行中コース
 
-            </td>
+        </td>
 
-        </tr>
+    </tr>
 
     `
 
@@ -822,17 +656,15 @@ function renderOrders(snapshot) {
 
     `
 
-        <tr>
+    <tr>
 
-            <td
-                colspan="20"
-                class="sectionTitle">
+        <td colspan="20" class="sectionTitle">
 
-                開始前コース
+            開始前コース
 
-            </td>
+        </td>
 
-        </tr>
+    </tr>
 
     `
 
@@ -841,55 +673,48 @@ function renderOrders(snapshot) {
     waitingHtml;
 
 }
-
 //==================================================
-// コース料理の提供状態切替
+// 料理提供切替
 //==================================================
-function toggleDish(orderId, index) {
+function toggleDish(orderId,index){
 
-    const ref =
-        window.db.collection("orders").doc(orderId);
+    const ref=
+    window.db.collection("orders").doc(orderId);
 
-    ref.get().then(doc => {
+    ref.get().then(doc=>{
 
-        const data = doc.data();
+        const data=doc.data();
 
-        //--------------------------------------------------
-        // 提供状態を反転
-        //--------------------------------------------------
-        data.dishes[index].done =
-            !data.dishes[index].done;
+        //提供状態切替
+        data.dishes[index].done=
+        !data.dishes[index].done;
 
-        //--------------------------------------------------
-        // 全料理提供済み？
-        //--------------------------------------------------
-        const allDone =
-            data.dishes.every(d => d.done);
+        //全部提供済み？
+        const allDone=
+        data.dishes.every(d=>d.done);
 
-        if (allDone) {
+        if(allDone){
 
-            //--------------------------------------------------
-            // 完了済へ移動
-            //--------------------------------------------------
+            //完了一覧へ移動
             window.db.collection("completedOrders").add({
 
                 ...data,
 
                 completedTime:
-                    new Date().toLocaleTimeString("ja-JP"),
+                new Date().toLocaleTimeString("ja-JP"),
 
                 completedAt:
-                    Date.now()
+                Date.now()
 
             });
 
             ref.delete();
 
-        } else {
+        }else{
 
             ref.update({
 
-                dishes: data.dishes
+                dishes:data.dishes
 
             });
 
@@ -898,110 +723,114 @@ function toggleDish(orderId, index) {
     });
 
 }
+
 //==================================================
 // 追加料理提供切替
 //==================================================
-function toggleExtraDish(orderId, index) {
+function toggleExtraDish(orderId,index){
 
-    const ref =
-        window.db.collection("orders").doc(orderId);
+    const ref=
+    window.db.collection("orders").doc(orderId);
 
-    ref.get().then(doc => {
+    ref.get().then(doc=>{
 
-        const data = doc.data();
+        const data=doc.data();
 
-        const extra =
-            data.extraDishes || [];
+        const extra=
+        data.extraDishes||[];
 
-        extra[index].done =
-            !extra[index].done;
+        extra[index].done=
+        !extra[index].done;
 
         ref.update({
 
-            extraDishes: extra
+            extraDishes:extra
 
         });
 
     });
 
 }
+
 //==================================================
 // 注文削除
 //==================================================
-function deleteOrder(orderId) {
+function deleteOrder(orderId){
 
-    if (!confirm("削除しますか？")) {
+    if(!confirm("削除しますか？")){
 
         return;
 
     }
 
     window.db
-        .collection("orders")
-        .doc(orderId)
-        .delete();
+    .collection("orders")
+    .doc(orderId)
+    .delete();
 
 }
+
 //==================================================
-// 完了済 → 注文一覧へ戻す
+// 完了済み→注文へ戻す
 //==================================================
-function restoreOrder(orderId) {
+function restoreOrder(orderId){
 
-    const ref =
-        window.db.collection("completedOrders").doc(orderId);
+    const ref=
+    window.db
+    .collection("completedOrders")
+    .doc(orderId);
 
-    ref.get().then(doc => {
+    ref.get().then(doc=>{
 
-        const data = doc.data();
+        const data=doc.data();
 
         delete data.completedTime;
         delete data.completedAt;
 
-        window.db.collection("orders").add(data);
+        window.db
+        .collection("orders")
+        .add(data);
 
         ref.delete();
 
     });
 
 }
+
 //==================================================
 // コース変更
 //==================================================
-function updateCourse(orderId, newCourse) {
+function updateCourse(orderId,newCourse){
 
     window.db
+    .collection("orders")
+    .doc(orderId)
+    .update({
 
-        .collection("orders")
+        course:newCourse,
 
-        .doc(orderId)
+        dishes:
+        (courseData[newCourse]||[])
+        .map(name=>({
 
-        .update({
+            name:name,
 
-            course: newCourse,
+            done:false
 
-            dishes:
+        })),
 
-                (courseData[newCourse] || [])
+        extraDishes:[]
 
-                .map(name => ({
-
-                    name: name,
-
-                    done: false
-
-                })),
-
-            extraDishes: []
-
-        });
+    });
 
 }
+
 //==================================================
 // 追加料理
 //==================================================
-function addExtraDish(orderId) {
+function addExtraDish(orderId){
 
-    const choice = prompt(
+    const choice=prompt(
 
 `追加料理
 
@@ -1011,22 +840,20 @@ function addExtraDish(orderId) {
 
     );
 
-    const ref =
-        window.db.collection("orders").doc(orderId);
+    const ref=
+    window.db.collection("orders").doc(orderId);
 
-    ref.get().then(doc => {
+    ref.get().then(doc=>{
 
-        const data = doc.data();
+        const data=doc.data();
 
-        let extra =
-            data.extraDishes || [];
+        let extra=
+        data.extraDishes||[];
 
-        //--------------------------------------------------
-        // 削除
-        //--------------------------------------------------
-        if (choice === "0") {
+        //削除
+        if(choice==="0"){
 
-            if (extra.length === 0) {
+            if(extra.length===0){
 
                 alert("追加料理がありません");
 
@@ -1038,7 +865,7 @@ function addExtraDish(orderId) {
 
             ref.update({
 
-                extraDishes: extra
+                extraDishes:extra
 
             });
 
@@ -1046,39 +873,37 @@ function addExtraDish(orderId) {
 
         }
 
-        //--------------------------------------------------
-        // 料理名
-        //--------------------------------------------------
-        let name = "";
+        let name="";
 
-        if (choice === "1") {
+        if(choice==="1"){
 
-            name = "焼き鳥";
+            name="焼き鳥";
 
         }
 
-        if (choice === "2") {
+        if(choice==="2"){
 
-            name = "宮炭";
+            name="宮炭";
 
         }
 
-        if (!name) return;
+        if(!name){
 
-        //--------------------------------------------------
-        // 追加
-        //--------------------------------------------------
+            return;
+
+        }
+
         extra.push({
 
-            name: name,
+            name:name,
 
-            done: false
+            done:false
 
         });
 
         ref.update({
 
-            extraDishes: extra
+            extraDishes:extra
 
         });
 
@@ -1095,48 +920,45 @@ let dragOrderId = null;
 // ドラッグ中の料理番号
 let dragIndex = null;
 
-
 //------------------------------
 // ドラッグ開始
 //------------------------------
-function dragDish(orderId, index) {
+function dragDish(orderId,index){
 
     dragOrderId = orderId;
-
     dragIndex = index;
 
 }
 
-
 //------------------------------
 // ドロップ
 //------------------------------
-function dropDish(orderId, dropIndex) {
+function dropDish(orderId,dropIndex){
 
-    // 違う注文へは移動不可
-    if (dragOrderId !== orderId) return;
+    //違う注文には移動できない
+    if(dragOrderId !== orderId) return;
 
-    if (dragIndex === null) return;
+    if(dragIndex === null) return;
 
     const ref =
-        window.db.collection("orders").doc(orderId);
+    window.db.collection("orders").doc(orderId);
 
-    ref.get().then(doc => {
+    ref.get().then(doc=>{
 
         const data = doc.data();
 
         const dishes = data.dishes;
 
-        // 一度取り出す
+        //一度取り出す
         const item =
-            dishes.splice(dragIndex, 1)[0];
+        dishes.splice(dragIndex,1)[0];
 
-        // 新しい位置へ入れる
-        dishes.splice(dropIndex, 0, item);
+        //新しい位置へ挿入
+        dishes.splice(dropIndex,0,item);
 
         ref.update({
 
-            dishes: dishes
+            dishes:dishes
 
         });
 
@@ -1146,64 +968,149 @@ function dropDish(orderId, dropIndex) {
     });
 
 }
+
 //==================================================
 // ドラッグ＆ドロップ（追加料理）
 //==================================================
 
+// ドラッグ中の注文ID
 let dragExtraOrderId = null;
 
+// ドラッグ中の追加料理番号
 let dragExtraIndex = null;
-
 
 //------------------------------
 // ドラッグ開始
 //------------------------------
-function dragExtraDish(orderId, index) {
+function dragExtraDish(orderId,index){
 
     dragExtraOrderId = orderId;
-
     dragExtraIndex = index;
 
 }
 
-
 //------------------------------
 // ドロップ
 //------------------------------
-function dropExtraDish(orderId, dropIndex) {
+function dropExtraDish(orderId,dropIndex){
 
-    if (dragExtraOrderId !== orderId) return;
+    //違う注文には移動できない
+    if(dragExtraOrderId !== orderId) return;
 
-    if (dragExtraIndex === null) return;
+    if(dragExtraIndex === null) return;
 
     const ref =
-        window.db.collection("orders").doc(orderId);
+    window.db.collection("orders").doc(orderId);
 
-    ref.get().then(doc => {
+    ref.get().then(doc=>{
 
         const data = doc.data();
 
         const extra =
-            data.extraDishes || [];
+        data.extraDishes || [];
 
+        //一度取り出す
         const item =
-            extra.splice(dragExtraIndex, 1)[0];
+        extra.splice(dragExtraIndex,1)[0];
 
-        extra.splice(dropIndex, 0, item);
+        //新しい位置へ挿入
+        extra.splice(dropIndex,0,item);
 
         ref.update({
 
-            extraDishes: extra
+            extraDishes:extra
 
         });
 
         dragExtraOrderId = null;
-
         dragExtraIndex = null;
 
     });
 
 }
+//==================================================
+// 完了コース一覧表示
+//==================================================
+function renderCompleted(snapshot){
+
+    const body =
+    document.getElementById("completedBody");
+
+    body.innerHTML = "";
+
+    snapshot.docs
+
+    .sort((a,b)=>
+
+        (a.data().sortOrder||0)
+        -
+        (b.data().sortOrder||0)
+
+    )
+
+    .forEach(doc=>{
+
+        const data = doc.data();
+
+        //1時間経過したら自動削除
+        if(
+
+            data.completedAt &&
+
+            Date.now() - data.completedAt >
+
+            60 * 60 * 1000
+
+        ){
+
+            window.db
+
+            .collection("completedOrders")
+
+            .doc(doc.id)
+
+            .delete();
+
+            return;
+
+        }
+
+        body.innerHTML += `
+
+        <tr>
+
+            <td>${data.time}</td>
+
+            <td>${data.course}</td>
+
+            <td>${data.people}</td>
+
+            <td>${data.table}</td>
+
+            <td>${data.completedTime || ""}</td>
+
+            <td>
+
+                <button
+
+                    onclick="restoreOrder('${doc.id}')"
+
+                >
+
+                    戻す
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
 //==================================================
 // HTMLから呼び出す関数
 //==================================================
@@ -1233,79 +1140,76 @@ window.dropDish = dropDish;
 window.dragExtraDish = dragExtraDish;
 
 window.dropExtraDish = dropExtraDish;
+
 //==================================================
-// 1秒ごとに進捗バーだけ更新
+// 1秒ごとに進捗バー更新
 //==================================================
 
-setInterval(() => {
+setInterval(()=>{
 
     window.db
 
-        .collection("orders")
+    .collection("orders")
 
-        .get()
+    .get()
 
-        .then(snapshot => {
+    .then(snapshot=>{
 
-            snapshot.forEach(doc => {
+        snapshot.forEach(doc=>{
 
-                const order = doc.data();
+            const order = doc.data();
 
-                const id = doc.id;
+            const id = doc.id;
 
-                const [hour, minute] =
-                    order.time.split(":");
+            const [hour,minute] =
+            order.time.split(":");
 
-                const now = new Date();
+            const now = new Date();
 
-                const startMinutes =
-                    Number(hour) * 60 +
-                    Number(minute);
+            const startMinutes =
+            Number(hour)*60 + Number(minute);
 
-                const nowMinutes =
-                    now.getHours() * 60 +
-                    now.getMinutes();
+            const nowMinutes =
+            now.getHours()*60 +
+            now.getMinutes();
 
-                const duration =
-                    courseDuration[order.course] || 90;
+            const duration =
+            courseDuration[order.course] || 90;
 
-                let progress =
-                    ((nowMinutes - startMinutes)
-                    / duration) * 100;
+            let progress =
+            ((nowMinutes-startMinutes)/duration)*100;
 
-                progress =
-                    Math.max(
-                        0,
-                        Math.min(progress, 100)
-                    );
+            progress = Math.max(
+                0,
+                Math.min(progress,100)
+            );
 
-                const bar =
-                    document.getElementById(
-                        `progress-${id}`
-                    );
+            const bar =
+            document.getElementById(`progress-${id}`);
 
-                if (bar) {
+            if(bar){
 
-                    bar.style.width =
-                        progress + "%";
+                bar.style.width =
+                progress + "%";
 
-                }
-
-            });
+            }
 
         });
 
-}, 1000);
+    });
+
+},1000);
+
 //==================================================
-// 30秒ごとにL.O・色を更新
+// 30秒ごとにL.O・色更新
 //==================================================
 
-setInterval(() => {
+setInterval(()=>{
 
-    if (latestSnapshot) {
+    if(latestSnapshot){
 
         renderOrders(latestSnapshot);
 
     }
 
-}, 30000);
+},30000);
