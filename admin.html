@@ -5,16 +5,15 @@
 
 <meta charset="UTF-8">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>コース管理</title>
+
 
 <style>
 
 /*==============================
-  全体
+ 全体
 ==============================*/
 
 body{
@@ -31,14 +30,16 @@ body{
 
 }
 
+
 h2{
 
     text-align:center;
 
 }
 
+
 /*==============================
-  カード
+ カード
 ==============================*/
 
 .card{
@@ -53,8 +54,9 @@ h2{
 
 }
 
+
 /*==============================
-  ラベル
+ ラベル
 ==============================*/
 
 label{
@@ -63,8 +65,9 @@ label{
 
 }
 
+
 /*==============================
-  入力部品
+ 入力部品
 ==============================*/
 
 select,
@@ -85,32 +88,44 @@ button{
 
 }
 
+
 button{
 
     cursor:pointer;
 
 }
 
+
 /*==============================
-  横並びボタン
+ ボタン横並び
+ iOS12対応
 ==============================*/
 
 .row{
 
     display:flex;
 
-    gap:10px;
-
 }
+
 
 .row button{
 
     flex:1;
 
+    margin-right:10px;
+
 }
 
+
+.row button:last-child{
+
+    margin-right:0;
+
+}
+
+
 /*==============================
-  区切り線
+ 区切り線
 ==============================*/
 
 hr{
@@ -119,19 +134,19 @@ hr{
 
 }
 
+
 /*==============================
-  料理一覧
+ 料理一覧
 ==============================*/
 
 #dishList div{
 
     display:flex;
 
-    gap:10px;
-
     margin-bottom:10px;
 
 }
+
 
 #dishList input{
 
@@ -139,7 +154,10 @@ hr{
 
     margin:0;
 
+    margin-right:10px;
+
 }
+
 
 #dishList button{
 
@@ -149,165 +167,257 @@ hr{
 
 }
 
+
+/*==============================
+ 削除ボタン
+==============================*/
+
+.deleteBtn{
+
+    background:#ff6666;
+
+    color:white;
+
+    border:none;
+
+}
+
 </style>
+
 
 </head>
 
+
 <body>
+
 
 <div class="card">
 
-<h2>コース管理</h2>
+
+<h2>
+
+コース管理
+
+</h2>
+
 
 <!--==========================
  コース選択
 ===========================-->
 
-<label>コース選択</label>
 
-<select id="courseSelect"></select>
+<label>
+
+コース選択
+
+</label>
+
+
+<select id="courseSelect">
+
+
+</select>
+
 
 <div class="row">
 
-    <!-- Firestoreから読込 -->
-    <button onclick="loadCourse()">
-        読込
-    </button>
 
-    <!-- 新しいコース追加 -->
-    <button onclick="addCourse()">
-        ＋コース追加
-    </button>
+<button onclick="loadCourse()">
 
-    <!-- Firestoreへ保存 -->
-    <button onclick="saveCourse()">
-        保存
-    </button>
+読込
+
+</button>
+
+
+<button onclick="addCourse()">
+
+＋コース追加
+
+</button>
+
+
+<button onclick="saveCourse()">
+
+保存
+
+</button>
+
 
 </div>
-
 <hr>
+
 
 <!--==========================
  コース時間
 ===========================-->
 
-<label>コース時間（分）</label>
+
+<label>
+
+コース時間（分）
+
+</label>
+
 
 <input
+
 type="number"
-id="duration">
+
+id="duration"
+
+>
+
+
 
 <hr>
+
+
+
+
 
 <!--==========================
  料理一覧
 ===========================-->
 
-<label>料理一覧</label>
 
-<div id="dishList"></div>
+<label>
+
+料理一覧
+
+</label>
+
+
+
+<div id="dishList">
+
+
+</div>
+
+
+
 
 <button onclick="addDish()">
+
 ＋料理追加
+
 </button>
-<body>
 
-<div class="card">
 
-    <!-- タイトル -->
-    <h2>コース管理</h2>
 
-    <!-- コース選択 -->
-    <label>コース選択</label>
 
-    <select id="courseSelect"></select>
 
-    <!-- 読込・追加・保存 -->
-    <div class="row">
+<hr>
 
-        <button onclick="loadCourse()">
-            読込
-        </button>
 
-        <button onclick="addCourse()">
-            ＋コース追加
-        </button>
 
-        <button onclick="saveCourse()">
-            保存
-        </button>
 
-    </div>
 
-    <hr>
+<!--==========================
+ コース名変更
+===========================-->
 
-    <!-- コース時間 -->
-    <label>コース時間（分）</label>
 
-    <input
-        type="number"
-        id="duration">
+<button onclick="renameCourse()">
 
-    <hr>
+コース名変更
 
-    <!-- 料理一覧 -->
-    <label>料理一覧</label>
+</button>
 
-    <div id="dishList"></div>
 
-    <button onclick="addDish()">
-        ＋料理追加
-    </button>
 
-    <hr>
 
-    <!-- コース名変更 -->
-    <button onclick="renameCourse()">
-        コース名変更
-    </button>
 
-    <hr>
+<hr>
 
-    <!-- コース削除 -->
-    <button
-        style="background:#ff6666;color:white;"
-        onclick="deleteCourse()">
 
-        コース削除
 
-    </button>
 
-    <br><br>
 
-    <!-- メイン画面へ戻る -->
-    <button
-        onclick="location.href='index.html'">
+<!--==========================
+ コース削除
+===========================-->
 
-        ← 管理画面へ戻る
 
-    </button>
+<button
+
+class="deleteBtn"
+
+onclick="deleteCourse()"
+
+>
+
+
+コース削除
+
+
+</button>
+
+
+
+
+
+<br><br>
+
+
+
+
+
+<!--==========================
+ メイン画面へ戻る
+===========================-->
+
+
+<button
+
+onclick="location.href='index.html'"
+
+>
+
+
+← 管理画面へ戻る
+
+
+</button>
+
+
+
+
 
 </div>
 <!-- ==========================
-     Firebaseライブラリ読込
+ Firebaseライブラリ
 ========================== -->
+
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
+
+
+
 <!-- ==========================
-     Firebase設定
+ Firebase設定
 ========================== -->
+
 
 <script src="firebase.js"></script>
 
+
+
+
 <!-- ==========================
-     コース管理JavaScript
+ コース管理JavaScript
 ========================== -->
+
 
 <script src="admin.js"></script>
 
+
+
+
 </body>
+
 </html>
