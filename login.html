@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <!--=========================
+        基本設定
+    ==========================-->
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>ログイン</title>
+
+    <style>
+
+        /*=========================
+            画面全体
+        =========================*/
+
+        body{
+
+            margin:0;
+
+            height:100vh;
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            background:#f5f5f5;
+
+            font-family:sans-serif;
+
+        }
+
+        /*=========================
+            ログインボックス
+        =========================*/
+
+        .login-box{
+
+            width:320px;
+
+            display:flex;
+
+            flex-direction:column;
+
+            gap:20px;
+
+        }
+
+        /*=========================
+            入力欄
+        =========================*/
+
+        input{
+
+            padding:15px;
+
+            font-size:20px;
+
+            border:1px solid #ccc;
+
+            border-radius:8px;
+
+        }
+
+        /*=========================
+            ボタン
+        =========================*/
+
+        button{
+
+            padding:15px;
+
+            font-size:22px;
+
+            border:none;
+
+            border-radius:8px;
+
+            cursor:pointer;
+
+            background:#4CAF50;
+
+            color:white;
+
+        }
+
+        /*=========================
+            マウスを乗せた時
+        =========================*/
+
+        button:hover{
+
+            background:#45a049;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <!--=========================
+        ログイン画面
+    =========================-->
+
+    <div class="login-box">
+
+        <!-- メールアドレス -->
+
+        <input
+            type="email"
+            id="email"
+            placeholder="メールアドレス">
+
+        <!-- パスワード -->
+
+        <input
+            type="password"
+            id="password"
+            placeholder="パスワード">
+
+        <!-- ログインボタン -->
+
+        <button onclick="login()">
+
+            ログイン
+
+        </button>
+
+    </div>
+
+
+    <!--=========================
+        Firebase
+    =========================-->
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+
+    <!--=========================
+        Firebase設定
+    =========================-->
+
+    <script src="firebase.js"></script>
+
+
+    <!--=========================
+        ログイン処理
+    =========================-->
+
+    <script src="login.js"></script>
+
+</body>
+
+</html>
