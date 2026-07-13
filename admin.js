@@ -40,6 +40,7 @@ firebase.auth().onAuthStateChanged(user => {
 function loadCourses(){
 
     courseRef
+    .orderBy("order")
     .get()
 
     .then(snapshot=>{
@@ -116,7 +117,13 @@ function loadCourse(){
     .get()
 
     .then(doc=>{
+        if(!doc.exists){
 
+        alert("コースがありません");
+
+        return;
+
+        }
         const data = doc.data();
 
         //----------------------------------
@@ -138,8 +145,12 @@ function loadCourse(){
 
         renderDishList();
 
-    });
+    })
+        .catch(error=>{
 
+        alert("コースの読込に失敗しました。\n" + error.message);
+
+    });
 }
 //==================================================
 // 保存
@@ -180,10 +191,9 @@ function saveCourse(){
         alert("保存しました");
 
     })
-
     .catch(error=>{
 
-        alert(error.message);
+    alert("保存に失敗しました。\n" + error.message);
 
     });
 
@@ -231,7 +241,7 @@ function addCourse(){
 
     .catch(error=>{
 
-        alert(error.message);
+    alert("追加に失敗しました。\n" + error.message);
 
     });
 
@@ -279,7 +289,7 @@ function deleteCourse(){
 
     .catch(error=>{
 
-        alert(error.message);
+    alert("削除に失敗しました。\n" + error.message);
 
     });
 
@@ -307,7 +317,13 @@ function renameCourse(){
         prompt("新しいコース名");
 
     if(!newName) return;
+    if(newName === oldName){
 
+    alert("同じ名前です");
+
+    return;
+
+}
     //----------------------------------
     // 元データ取得
     //----------------------------------
@@ -350,7 +366,7 @@ function renameCourse(){
 
     .catch(error=>{
 
-        alert(error.message);
+    alert("変更に失敗しました。\n" + error.message);
 
     });
 
