@@ -690,9 +690,12 @@ function toggleDish(orderId,index){
         const extra = data.extraDishes || [];
 
         const allDone =
-        data.dishes.every(d => d.done) &&
-        extra.every(d => d.done);
-
+            data.dishes.every(d => d.done) &&
+            extra.every(d => d.done);
+        console.log(data.dishes);
+        console.log(extra);
+        console.log(allDone);
+        
         if(allDone){
 
             //完了一覧へ移動
