@@ -331,8 +331,10 @@ function renderOrders(snapshot){
         //-------------------------
         // 現在時刻
         //-------------------------
-        const now =
-        new Date();
+        const now = new Date();
+        const nowMinutes =
+        now.getHours()*60 +
+        now.getMinutes();
 
         const remainMinutes =
         Math.floor(
@@ -345,11 +347,7 @@ function renderOrders(snapshot){
 
         const startMinutes =
         Number(hour)*60+
-        Number(minute);
-
-        const nowMinutes =
-        now.getHours()*60+
-        now.getMinutes();
+        Number(minute);      
 
         //-------------------------
         // 進捗率
@@ -1038,76 +1036,30 @@ function renderCompleted(snapshot){
 
     body.innerHTML = "";
 
-    snapshot.docs
+let html = "";
 
-    .sort((a,b)=>
+snapshot.docs.forEach(doc=>{
 
-        (a.data().sortOrder||0)
-        -
-        (b.data().sortOrder||0)
+    const data = doc.data();
 
-    )
-
-    .forEach(doc=>{
-
-        const data = doc.data();
-
-        //1時間経過したら自動削除
-        if(
-
-            data.completedAt &&
-
-            Date.now() - data.completedAt >
-
-            60 * 60 * 1000
-
-        ){
-
-            window.db
-
-            .collection("completedOrders")
-
-            .doc(doc.id)
-
-            .delete();
-
-            return;
-
-        }
-
-        body.innerHTML += `
-
+    html += `
         <tr>
-
             <td>${data.time}</td>
-
             <td>${data.course}</td>
-
             <td>${data.people}</td>
-
             <td>${data.table}</td>
-
             <td>${data.completedTime || ""}</td>
-
             <td>
-
-                <button
-
-                    onclick="restoreOrder('${doc.id}')"
-
-                >
-
+                <button onclick="restoreOrder('${doc.id}')">
                     戻す
-
                 </button>
-
             </td>
-
         </tr>
+    `;
 
-        `;
+});
 
-    });
+body.innerHTML = html;
 
 }
 
@@ -1213,68 +1165,3 @@ setInterval(()=>{
     }
 
 },30000);
-//==================================================
-// ログイン確認
-//==================================================
-
-firebase.auth().onAuthStateChanged(user=>{
-
-    //--------------------------------------------------
-    // 未ログインならログイン画面へ
-    //--------------------------------------------------
-    if(!user){
-
-        location.href = "login.html";
-
-        return;
-
-    }
-
-    //--------------------------------------------------
-    // コース一覧を読み込む
-    //--------------------------------------------------
-    loadCourses()
-
-    .then(()=>{
-
-        //--------------------------------------------------
-        // 注文一覧をリアルタイム監視
-        //--------------------------------------------------
-        window.db
-
-        .collection("orders")
-
-        .onSnapshot(snapshot=>{
-
-            // 最新データ保存
-            latestSnapshot = snapshot;
-
-            // 画面更新
-            renderOrders(snapshot);
-
-        });
-
-        //--------------------------------------------------
-        // 完了済一覧をリアルタイム監視
-        //--------------------------------------------------
-        window.db
-
-        .collection("completedOrders")
-
-        .onSnapshot(snapshot=>{
-
-            renderCompleted(snapshot);
-
-        });
-
-    })
-
-    .catch(error=>{
-
-        console.error(error);
-
-        alert("データの読み込みに失敗しました。");
-
-    });
-
-});
