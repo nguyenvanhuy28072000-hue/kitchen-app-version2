@@ -377,57 +377,36 @@ function renameCourse(){
 
 function renderDishList(){
 
-    //----------------------------------
-    // 一覧を表示する場所
-    //----------------------------------
+    const list = document.getElementById("dishList");
 
-    const list =
-        document.getElementById("dishList");
-
-    //----------------------------------
-    // 一度空にする
-    //----------------------------------
-
-    list.innerHTML = "";
-
-    //----------------------------------
-    // 料理を1件ずつ表示
-    //----------------------------------
+    let html = "";
 
     currentDishes.forEach((dish,index)=>{
-            html += `
+
+        html += `
         <div
             draggable="true"
             ondragstart="dragStart(${index})"
             ondragover="event.preventDefault()"
-            ondrop="dropDish(${index})"
-        >
-
-            <!--料理名-->
+            ondrop="dropDish(${index})">
 
             <input
                 type="text"
                 value="${dish}"
-                onchange="changeDish(${index},this.value)"
-            >
-
-            <!--削除ボタン-->
+                onchange="changeDish(${index},this.value)">
 
             <button
                 type="button"
-
-                onclick="deleteDish(${index})"
-            >
-
+                onclick="deleteDish(${index})">
                 削除
-
             </button>
 
         </div>
-
         `;
 
     });
+
+    list.innerHTML = html;
 
 }
 
