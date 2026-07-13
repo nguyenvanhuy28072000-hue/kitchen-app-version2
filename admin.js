@@ -396,7 +396,12 @@ function renderDishList(){
 
     currentDishes.forEach((dish,index)=>{
 
-        list.innerHTML += `
+        let html = "";
+
+        currentDishes.forEach((dish,index)=>{
+            html += `...`;
+        });
+        list.innerHTML = html;
 
         <div
             draggable="true"
@@ -464,7 +469,7 @@ function addDish(){
     // 最後に追加
     //----------------------------------
 
-    currentDishes.push("新しい料理");
+    currentDishes.push("");
 
     //----------------------------------
     // 再表示
