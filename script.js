@@ -687,8 +687,11 @@ function toggleDish(orderId,index){
         !data.dishes[index].done;
 
         //全部提供済み？
-        const allDone=
-        data.dishes.every(d=>d.done);
+        const extra = data.extraDishes || [];
+
+        const allDone =
+        data.dishes.every(d => d.done) &&
+        extra.every(d => d.done);
 
         if(allDone){
 
