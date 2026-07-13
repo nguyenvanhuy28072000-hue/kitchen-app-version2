@@ -7,7 +7,8 @@
 // 現在編集中の料理一覧
 //----------------------------------
 let currentDishes = [];
-
+// Firestore coursesコレクション
+const courseRef = window.db.collection("courses");
 
 //==================================================
 // ログイン確認
@@ -38,7 +39,7 @@ firebase.auth().onAuthStateChanged(user => {
 
 function loadCourses(){
 
-    window.db.collection("courses")
+    courseRef
     .get()
 
     .then(snapshot=>{
@@ -110,8 +111,7 @@ function loadCourse(){
     // Firestoreから取得
     //----------------------------------
 
-    window.db
-    .collection("courses")
+    courseRef
     .doc(id)
     .get()
 
@@ -165,8 +165,7 @@ function saveCourse(){
     // Firestore更新
     //----------------------------------
 
-    window.db
-    .collection("courses")
+    courseRef
     .doc(id)
     .update({
 
@@ -210,8 +209,7 @@ function addCourse(){
     // Firestoreへ追加
     //----------------------------------
 
-    window.db
-    .collection("courses")
+    courseRef
     .doc(name)
     .set({
 
@@ -267,8 +265,7 @@ function deleteCourse(){
     // Firestore削除
     //----------------------------------
 
-    window.db
-    .collection("courses")
+    courseRef
     .doc(id)
     .delete()
 
@@ -315,21 +312,19 @@ function renameCourse(){
     // 元データ取得
     //----------------------------------
 
-    window.db
-    .collection("courses")
+    courseRef
     .doc(oldName)
     .get()
-
+ 
     .then(doc=>{
 
         //----------------------------------
         // 新しい名前で保存
         //----------------------------------
 
-        return window.db
-            .collection("courses")
-            .doc(newName)
-            .set(doc.data());
+        return courseRef
+                .doc(newName)
+                .set(doc.data());
 
     })
 
@@ -339,10 +334,9 @@ function renameCourse(){
         // 古いコース削除
         //----------------------------------
 
-        return window.db
-            .collection("courses")
-            .doc(oldName)
-            .delete();
+        return courseRef
+                .doc(oldName)
+                .delete();
 
     })
 
