@@ -395,21 +395,11 @@ function renderDishList(){
     //----------------------------------
 
     currentDishes.forEach((dish,index)=>{
-
-        let html = "";
-
-        currentDishes.forEach((dish,index)=>{
-            html += `...`;
-        });
-        list.innerHTML = html;
-
+            html += `
         <div
             draggable="true"
-
             ondragstart="dragStart(${index})"
-
             ondragover="event.preventDefault()"
-
             ondrop="dropDish(${index})"
         >
 
@@ -417,9 +407,7 @@ function renderDishList(){
 
             <input
                 type="text"
-
                 value="${dish}"
-
                 onchange="changeDish(${index},this.value)"
             >
 
