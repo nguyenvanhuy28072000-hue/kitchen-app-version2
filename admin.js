@@ -40,7 +40,6 @@ firebase.auth().onAuthStateChanged(user => {
 function loadCourses(){
 
     courseRef
-    .orderBy("order")
     .get()
 
     .then(snapshot=>{
