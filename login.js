@@ -1,6 +1,8 @@
 //==================================================
 // ログイン処理
 //==================================================
+const button =
+document.getElementById("loginButton");
 
 function login() {
 
@@ -23,7 +25,9 @@ function login() {
     //----------------------------------
     // Firebase Authenticationでログイン
     //----------------------------------
-
+    button.disabled = true;
+    button.textContent =
+    "ログイン中...";
     firebase.auth()
 
         .signInWithEmailAndPassword(
@@ -36,9 +40,9 @@ function login() {
         //----------------------------------
 
         .then(() => {
-
+            button.disabled = false;
             // メイン画面へ移動
-            window.location.href = "index.html";
+            location.href = "index.html";
 
         })
 
@@ -47,7 +51,9 @@ function login() {
         //----------------------------------
 
         .catch(error => {
-
+            button.disabled = false;
+            button.textContent =
+            "ログイン";
             switch (error.code) {
 
                 //------------------------------
