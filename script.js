@@ -732,24 +732,48 @@ function toggleDish(orderId,index){
 //==================================================
 function toggleExtraDish(orderId,index){
 
-    const ref=
+    const ref =
     window.db.collection("orders").doc(orderId);
 
     ref.get().then(doc=>{
 
-        const data=doc.data();
+        const data = doc.data();
 
-        const extra=
-        data.extraDishes||[];
+        const extra = data.extraDishes || [];
 
-        extra[index].done=
-        !extra[index].done;
+        extra[index].done = !extra[index].done;
 
-        ref.update({
+        const allDone =
+            data.dishes.every(d => d.done) &&
+            extra.every(d => d.done);
 
-            extraDishes:extra
+        if(allDone){
 
-        });
+            window.db.collection("completedOrders").add({
+
+                ...data,
+
+                extraDishes: extra,
+
+                completedTime:
+                new Date().toLocaleTimeString("ja-JP"),
+
+                completedAt:
+                Date.now()
+
+            });
+
+            ref.delete();
+
+        }else{
+
+            ref.update({
+
+                extraDishes: extra
+
+            });
+
+        }
 
     });
 
